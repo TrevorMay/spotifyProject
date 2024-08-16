@@ -95,9 +95,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Access the environment variables
-SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
-SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
-SPOTIPY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI")
+client_id = os.getenv("SPOTIPY_CLIENT_ID")
+client_secret = os.getenv("SPOTIPY_CLIENT_SECRET")
+redirect_uri = os.getenv("SPOTIPY_REDIRECT_URI")
 
 # Replace 'your_user_id' with your actual Spotify user ID
 user_id = os.getenv("USER_ID")
@@ -132,6 +132,16 @@ def rate_limited_request(func, *args, **kwargs):
 
 
 # %%
+playlists_remaining = [# 'Rainy Days', 
+ 'Classic Rock / BBQ Music',
+ 'Desert Road 🏜️ ',
+ 'Late Nights',
+ 'Chillin',
+ 'Nights At The Roxbury',
+ "Devil's Lettuce",
+ 'alt']
+
+# %%
 import time
 import datetime
 
@@ -141,63 +151,66 @@ def insert_data():
     for playlist in playlists['items']:
         playlist_id = playlist['id']
         name = playlist['name']
-        description = playlist['description']
-        owner_id = playlist['owner']['id']
-        public = playlist['public']
-
-        print(f"Inserting playlist: {name}")
-        
-        cursor.execute('''
-            INSERT OR IGNORE INTO Playlists (playlist_id, name, description, owner_id, public)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (playlist_id, name, description, owner_id, public))
-        
-        tracks = sp.playlist_tracks(playlist_id)
-        for item in tracks['items']:
-            track = item['track']
-            song_id = track['id']
-            title = track['name']
-            artist_id = track['artists'][0]['id']
-            album_id = track['album']['id']
-            duration = track['duration_ms']
-            popularity = track['popularity']
-            added_at = item['added_at']
+        if name in playlists_remaining:
+            description = playlist['description']
+            owner_id = playlist['owner']['id']
+            public = playlist['public']
+    
+            print(f"Inserting playlist: {name}")
             
             cursor.execute('''
-                INSERT OR IGNORE INTO Songs (song_id, title, artist_id, album_id, duration, popularity, added_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            ''', (song_id, title, artist_id, album_id, duration, popularity, added_at))
+                INSERT OR IGNORE INTO Playlists (playlist_id, name, description, owner_id, public)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (playlist_id, name, description, owner_id, public))
             
-            cursor.execute('''
-                INSERT OR IGNORE INTO Playlist_Songs (playlist_id, song_id, added_at)
-                VALUES (?, ?, ?)
-            ''', (playlist_id, song_id, added_at))
-
-            if artist_id is not None:
-                # artist = sp.artist(artist_id)
-                artist = rate_limited_request(sp.artist, artist_id)
-                time.sleep(0.1)
-                name = artist['name']
-                genres = ', '.join(artist['genres'])
-            
-                cursor.execute('''
-                    INSERT OR IGNORE INTO Artists (artist_id, name, genres)
-                    VALUES (?, ?, ?)
-                ''', (artist_id, name, genres))
-
-            if album_id is not None:
-                # album = sp.album(album_id)
-                album = rate_limited_request(sp.album, album_id)
-                time.sleep(0.1)
-                title = album['name']
-                release_date = album['release_date']
-                total_tracks = album['total_tracks']
+            tracks = sp.playlist_tracks(playlist_id)
+            for item in tracks['items']:
+                track = item['track']
+                song_id = track['id']
+                title = track['name']
+                print(title)
+                artist_id = track['artists'][0]['id']
+                album_id = track['album']['id']
+                duration = track['duration_ms']
+                popularity = track['popularity']
+                added_at = item['added_at']
                 
                 cursor.execute('''
-                    INSERT OR IGNORE INTO Albums (album_id, title, artist_id, release_date, total_tracks)
-                    VALUES (?, ?, ?, ?, ?)
-                ''', (album_id, title, artist_id, release_date, total_tracks))
+                    INSERT OR IGNORE INTO Songs (song_id, title, artist_id, album_id, duration, popularity, added_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                ''', (song_id, title, artist_id, album_id, duration, popularity, added_at))
+                
+                cursor.execute('''
+                    INSERT OR IGNORE INTO Playlist_Songs (playlist_id, song_id, added_at)
+                    VALUES (?, ?, ?)
+                ''', (playlist_id, song_id, added_at))
+    
+                if artist_id is not None:
+                    # artist = sp.artist(artist_id)
+                    artist = rate_limited_request(sp.artist, artist_id)
+                    time.sleep(0.1)
+                    name = artist['name']
+                    genres = ', '.join(artist['genres'])
+                
+                    cursor.execute('''
+                        INSERT OR IGNORE INTO Artists (artist_id, name, genres)
+                        VALUES (?, ?, ?)
+                    ''', (artist_id, name, genres))
+    
+                if album_id is not None:
+                    # album = sp.album(album_id)
+                    album = rate_limited_request(sp.album, album_id)
+                    time.sleep(0.1)
+                    title = album['name']
+                    release_date = album['release_date']
+                    total_tracks = album['total_tracks']
+                    
+                    cursor.execute('''
+                        INSERT OR IGNORE INTO Albums (album_id, title, artist_id, release_date, total_tracks)
+                        VALUES (?, ?, ?, ?, ?)
+                    ''', (album_id, title, artist_id, release_date, total_tracks))
 
+            conn.commit()
             time.sleep(1)
 
 # Insert data into the database
@@ -206,3 +219,45 @@ insert_data()
 # Commit and close connection
 conn.commit()
 conn.close()
+
+# %%
+import pandas as pd
+
+# Get current user's playlists
+playlists = sp.current_user_playlists()
+
+# Initialize a list to hold all track data
+tracks_data = []
+
+# Loop through each playlist
+for playlist in playlists['items']:
+    playlist_name = playlist['name']
+    playlist_id = playlist['id']
+    
+    # Get all tracks in the playlist
+    results = sp.playlist_tracks(playlist_id)
+    
+    while results:
+        for item in results['items']:
+            track = item['track']
+            song_id = track['id']
+            song_name = track['name']
+            artist_name = track['artists'][0]['name']
+            
+            tracks_data.append({
+                'song_id': song_id,
+                'song_name': song_name,
+                'artist_name': artist_name,
+                'playlist_name': playlist_name
+            })
+        
+        # Pagination - Get next batch of tracks
+        results = sp.next(results) if results['next'] else None
+
+# Convert list to DataFrame
+df = pd.DataFrame(tracks_data)
+
+# Save to CSV
+df.to_csv('spotify_songs.csv', index=False)
+
+print(f"Successfully saved {len(df)} songs to spotify_songs.csv")

@@ -21,10 +21,10 @@ import sys
 
 # %%
 import spotipy
-import random
+import pyodbc
 import time
-import requests
 import os
+import pandas as pd
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
 
@@ -32,18 +32,18 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Access the environment variables
-SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
-SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
-SPOTIPY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI")
+client_id = os.getenv("SPOTIPY_CLIENT_ID")
+client_secret = os.getenv("SPOTIPY_CLIENT_SECRET")
+redirect_uri = os.getenv("SPOTIPY_REDIRECT_URI")
 
 # Replace 'your_user_id' with your actual Spotify user ID
 user_id = os.getenv("USER_ID")
 
-# Authenticate with Spotify
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID,
-                                               client_secret=CLIENT_SECRET,
-                                               redirect_uri=REDIRECT_URI,
-                                               scope=SCOPE))
+# Authenticate
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id,
+                                               client_secret=client_secret,
+                                               redirect_uri=redirect_uri,
+                                               scope='playlist-read-private playlist-modify-private playlist-modify-public'))
 
 # %%
 # Fetch the current user's playlists
@@ -104,10 +104,6 @@ PLAYLIST_IDS = ['2tciVu41abGNGGDTor8ymi', # Pop jams
                 '4EvCXZDLdnJfAYUUqAeFp4', # R&B
                 '4I93rJXYxrwMOgOrueztzt', # White Noise Ambient
                 '5artPRbCYgZHoWmkaS1Qwo', # New R&B
-                '3s7zMU3AEY6clhnHXl54Cq', # Rock - Retirement
-                '5PBj2MCDvGlmxFFJJMyDDl', # Country - Retirement
-                '6jZlLmmY9Brko7ohKPIghE', # EDM - Retirement
-                '1vRyUUQuoK1bgERMI15bZM', # Rap - Retirement
                 '4Dn82KRwRl79HwCibPCg3g', # Baby Driver
                 '4InvgPgwdpYWdxDvTAGXx6', # Meditation Music
                 '0mXPvAzrlEBUfshpde5Xll', # Relaxing Baby Music
