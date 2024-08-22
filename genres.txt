@@ -1,0 +1,21 @@
+MotownSoul = ['Motown', 'Soul']
+
+Metal = ['Alternative metal', 'Nu metal', 'Rap metal']
+
+Rock = ['Rock', 'Alternative rock', 'Art rock', 'Blues rock, 'Instrumental rock', 'Progressive rock', 'Psychedelic rock', 'Symphonic rock', 'Slacker rock', 'Roots rock', 'Dance rock', 'Modern rock', 'Dance-punk', 'Doo-wop', 'Rock-and-roll', 'Rockabilly', 'Rock drums', 'Album rock', Classic rock', 'Hard rock', 'American post-punk', 'Noise rock', 'Funk rock', 'Modern folk rock', 'Austin rock', 'Modern blues rock', 'Glam rock']
+
+Indie = ['Sacramento indie', 'Indie rock', 'Chicago indie', 'La indie', 'Brooklyn indie', 'Indietronica', 'Indie soul', 'Indie', 'Kentucky indie', 'Kentucky roots', 'Bristol indie', 'Denton tx indie', 'Philly indie', 'Canadian indie', 'indie folk', 'Quebec indie', 'Austindie', 'Oxford indie', 'Bay area indie', 'Indie surf', 'Vancouver indie', 'Seattle indie', 'Indie punk', 'Indie pop', 'Lo-fi indie', 'Indie garage rock']
+
+Pop = ['Art pop', 'Dark pop', 'Chamber pop', 'Noise pop', 'Neo-synthpop', 'Vapor pop', 'Uk pop', 'Pop dance', 'german pop', 'New wav pop', 'Synthpop', 'Shimmer pop', 'Stomp pop', 'Modern jangle pop', 'Hyperpop', 'Proto-hyperpop', 'Transpop', 'Power pop', 'Baroque pop', 'Hypnagogic pop', 'Pop']
+
+EDM = ['Electronica', 'Laboratorio', 'Lo-fi', 'Rave', 'Hardcore techno', 'New rave', 'Chillwave', 'Edm', 'Electro house', 'Deep tropical house', 'Pop edm', 'Progressive electro house', 'Tropical house', 'Ambient psychill', 'Psychill', 'Vaporwave']
+
+Rap = ['Trip hop', Big beat', 'Breakbeat', 'Funky breaks', 'Bboy', 'Nz hip hop', 'Nz jazz', 'Instrumental hip hop', 'Japanese chillhop', 'Japanese old school hip hop', 'Jazz rap', 'Alternative hip hop', 'Hip hop']
+
+Other = ['Experimental Songs', 'Zolo', 'Folk', 'Singer-songwriter', 'Elephant 6', 'Stomp and holler', 'Metropolis', 'Alternative dance', 'Instrumental funk', 'Rare groove', 'Stutter house', 'Talentschau', 'Disco', 'Freestyle', 'Funk', Minneapolis sound', 'New jack swing', 'Quiet storm', 'Urban contemporary', 'Mellow gold', 'Uk americana', 'New romantic', 'Neo-psychedelic', 'Downtempo', 'New wave', 'Permanent wave', 'Uk post-punk', 'Shoegaze', 'Filter house', 'Nu disco', 'Melancholia', 'Slowcore', 'Progressive post-hardcore', 'Intelligent dance music', 'Bubblegum bass', 'Deconstructed club', 'Escape room']
+
+Jazz = ['Jazz fusion', 'Jazz rock', 'Unknown', 'New americana', 'Roots americana', 'Southern americana', 'Progressive jazz fusion', 'Contemporary jazz', 'Jazz']
+
+Country = ['Alternative country', 'Countrygaze']
+
+R_and_B = ['Uk contemporary r&b', 'Alternative r&b']
