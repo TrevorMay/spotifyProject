@@ -15,9 +15,13 @@
 
 # %%
 import spotipy
+import random
 import pyodbc
+import requests
 import time
+import base64
 import os
+import pandas as pd
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
 
@@ -36,7 +40,7 @@ user_id = os.getenv("USER_ID")
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id,
                                                client_secret=client_secret,
                                                redirect_uri=redirect_uri,
-                                               scope='playlist-modify-private'))
+                                               scope='playlist-read-private playlist-read-collaborative playlist-read-private playlist-modify-private playlist-modify-public'))
 
 # %%
 import os
@@ -47,17 +51,84 @@ if os.path.exists('.cache'):
 
 
 # %%
-def rate_limited_request(func, *args, **kwargs):
-    while True:
+def get_access_token(client_id, client_secret):
+    # Set the Spotify API token endpoint
+    token_url = r"https://accounts.spotify.com/api/token"
+    # Encode the client ID and client secret to base64
+    auth_str = f"{client_id}:{client_secret}"
+    
+    encoded_auth_str = base64.b64encode(auth_str.encode()).decode('utf-8')
+
+    # Headers for the POST request
+    headers = {
+        'Authorization': f'Basic {encoded_auth_str}'
+    }
+
+    # Parameters for the POST request
+    params = {
+        'grant_type': 'client_credentials'
+    }
+
+    # Make the POST request to get the access token
+    response = requests.post(token_url, data=params, headers=headers)
+
+    if response.status_code == 200:
+        # Access token obtained successfully
+        access_token = response.json().get('access_token')
+        return access_token
+    else:
+        print(f"Error: Unable to get access token. Status code: {response.status_code}")
+        return None
+
+access_token = get_access_token(client_id, client_secret)
+if access_token:
+    print(f"Access token: {access_token}")
+else:
+    print("Failed to obtain access token.")
+
+# %%
+# def rate_limited_request(func, *args, **kwargs):
+#     while True:
+#         try:
+#             return func(*args, **kwargs)
+#         except spotipy.exceptions.SpotifyException as e:
+#             if e.http_status == 429:
+#                 retry_after = int(e.headers.get("Retry-After", 1))
+#                 print(f"Rate limit exceeded. Retrying in {retry_after} seconds...")
+#                 time.sleep(retry_after)
+#             else:
+#                 raise
+
+# %%
+import time
+import random
+from spotipy.exceptions import SpotifyException
+
+# Improved rate-limited request function with retry limits to prevent infinite loops
+def rate_limited_request(func, *args, max_retries=5, **kwargs):
+    retries = 0  # Initialize retry counter
+    while retries < max_retries:
         try:
-            return func(*args, **kwargs)
-        except spotipy.exceptions.SpotifyException as e:
-            if e.http_status == 429:
+            return func(*args, **kwargs)  # Attempt to execute the function
+        except SpotifyException as e:
+            if e.http_status == 429:  # Check if the error is due to rate limiting
+                # Get the suggested retry-after time, with a random additional delay
                 retry_after = int(e.headers.get("Retry-After", 1))
-                print(f"Rate limit exceeded. Retrying in {retry_after} seconds...")
-                time.sleep(retry_after)
+                retry_after = retry_after + random.randint(1, 10)
+                print(f"Rate limit exceeded. Retrying in {retry_after} seconds... (Attempt {retries + 1} of {max_retries})")
+                time.sleep(retry_after)  # Wait before retrying
+                retries += 1  # Increment the retry counter
             else:
-                raise
+                # Handle other Spotify exceptions and exit the retry loop
+                print(f"SpotifyException encountered: {e}")
+                break
+        except Exception as e:
+            # Handle any other unexpected exceptions and exit the retry loop
+            print(f"Unexpected error: {e}")
+            break
+
+    print(f"Max retries reached for {func.__name__}. Unable to complete request.")
+    return None  # Return None if max retries are reached
 
 
 # %%
@@ -97,4 +168,8 @@ for playlist in playlists['items']:
             track_id = track
             if track_id in non_TLT_song_ids:
                 sp.playlist_remove_all_occurrences_of_items(playlist_id, [track_id])
-                print(f"Track {track_id} has been removed from the playlist {playlist_id}.")
+                print(f"Track {track_id} has been removed from the playlist {playlist_name}.")
+
+# %%
+tracks = get_playlist_tracks('5P36gcPJgStoWudUwX0ZCC')
+tracks
