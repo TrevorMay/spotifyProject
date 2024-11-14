@@ -244,6 +244,9 @@ print("Reverse Mapping:", reverse_mapping)    # Encoded value -> Original label
 df.to_csv('TLT_genres.csv', index=False)
 
 # %%
+df = pd.read_csv('TLT_genres.csv')
+
+# %%
 # Train-test split
 X = df.drop('genre', axis=1)
 y = df['genre']
@@ -262,6 +265,20 @@ import pandas as pd
 
 df = pd.read_csv('TLT_genres.csv')
 df.head()
+
+# %%
+df['genre'] = labels
+
+# Encode genres as numerical values
+label_encoder = LabelEncoder()
+df['genre'] = label_encoder.fit_transform(df['genre'])
+
+# Get the mapping of original labels to encoded values
+label_mapping = dict(zip(label_encoder.classes_, range(len(label_encoder.classes_))))
+reverse_mapping = dict(zip(range(len(label_encoder.classes_)), label_encoder.classes_))
+
+print("Label Mapping:", label_mapping)        # Original label -> Encoded value
+print("Reverse Mapping:", reverse_mapping)    # Encoded value -> Original label
 
 # %%
 print("Label Mapping:", label_mapping)        # Original label -> Encoded value
