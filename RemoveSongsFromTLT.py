@@ -144,14 +144,15 @@ non_TLT_song_ids = set(non_TLT_songs['song_id'])
 
 # %%
 def get_playlist_tracks(playlist_id):
-    tracks = []
+    tracks = dict()
     results = rate_limited_request(sp.playlist_tracks, playlist_id)
     
     while results:
         for item in results.get('items', []):
             track = item.get('track')
+            track_name = track.get('name')
             if track:
-                tracks.append(track['id'])
+                tracks[track['id']] = track_name
         results = rate_limited_request(sp.next, results) if results.get('next') else None
     
     return tracks
@@ -164,12 +165,7 @@ for playlist in playlists['items']:
     playlist_name = playlist['name']
     if 'TLT' in playlist_name: # if it's a to listen to
         tracks = get_playlist_tracks(playlist_id)
-        for track in tracks: # go track by track and make sure the songs aren't already in my library
-            track_id = track
+        for track_id, track_name in tracks.items(): # go track by track and make sure the songs aren't already in my library
             if track_id in non_TLT_song_ids:
-                sp.playlist_remove_all_occurrences_of_items(playlist_id, [track_id])
-                print(f"Track {track_id} has been removed from the playlist {playlist_name}.")
-
-# %%
-tracks = get_playlist_tracks('5P36gcPJgStoWudUwX0ZCC')
-tracks
+                rate_limited_request(sp.playlist_remove_all_occurrences_of_items, playlist_id, [track_id])
+                print(f"Track {track_name} has been removed from the playlist {playlist_name}.")
