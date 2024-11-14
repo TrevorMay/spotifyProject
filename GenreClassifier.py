@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.16.2
+#       jupytext_version: 1.16.4
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -371,8 +371,8 @@ def move_songs_to_genre_playlists(source_playlist_id):
                 genre_playlist_id = genre_playlists.get(reverse_mapping[genre])
                 if genre_playlist_id:
                     try:
-                        sp.playlist_add_items(genre_playlist_id, [track_ids[idx]])
-                        sp.playlist_remove_all_occurrences_of_items(source_playlist_id, [track_ids[idx]])
+                        rate_limited_request(sp.playlist_add_items, genre_playlist_id, [track_ids[idx]])
+                        rate_limited_request(sp.playlist_remove_all_occurrences_of_items, source_playlist_id, [track_ids[idx]])
                         print(f"Moved {track_info[idx][0]} by {track_info[idx][1]} to {reverse_mapping[genre]} playlist.")
                     except Exception as e:
                         print(f"Error moving {track_info[idx][0]}: {e}")
@@ -383,3 +383,5 @@ def move_songs_to_genre_playlists(source_playlist_id):
     print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
 
 move_songs_to_genre_playlists(source_playlist_id)
+
+# %%
