@@ -1,29 +1,9 @@
-# ---
-# jupyter:
-#   jupytext:
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.16.2
-#   kernelspec:
-#     display_name: Python 3 (ipykernel)
-#     language: python
-#     name: python3
-# ---
-
-# %%
-# # !pip install spotipy
-# # !pip install jupytext
-# # !pip install pandas
 import sys
-
-# %%
 import spotipy
-import pyodbc
+# import pyodbc
 import time
 import os
+import random
 import pandas as pd
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
@@ -45,17 +25,15 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id,
                                                redirect_uri=redirect_uri,
                                                scope='playlist-read-private playlist-modify-private playlist-modify-public'))
 
-# %%
 # Fetch the current user's playlists
 playlists = sp.current_user_playlists()
 
 # Display the playlists and their IDs
-for playlist in playlists['items']:
-    print(f"Name: {playlist['name']}, ID: {playlist['id']}")
+# for playlist in playlists['items']:
+#    print(f"Name: {playlist['name']}, ID: {playlist['id']}")
 
 print("All playlists fetched successfully!")
 
-# %%
 PLAYLIST_DICT = {
     '2tciVu41abGNGGDTor8ymi': 'Pop jams',
     '02amPkup87qzafM74GaBio': 'Country',
@@ -94,8 +72,6 @@ PLAYLIST_DICT = {
     '4dCrVJEWn25z1tnEDpcfTs': '50s / 60s'
 }
 
-
-# %%
 PLAYLIST_IDS = ['2tciVu41abGNGGDTor8ymi', # Pop jams
                 '02amPkup87qzafM74GaBio', # Country
                 '4lljfJpe1l0IIHghRghBtw', # Skux Life
@@ -141,23 +117,6 @@ def rate_limited_request(func, *args, **kwargs):
             else:
                 raise
 
-# def fetch_all_tracks_from_playlist(playlist_id):
-#     tracks = []
-#     results = rate_limited_request(sp.playlist_tracks, playlist_id)
-#     if results['next'] and len(results['items']) > 0: # if playlist is not empty
-#         try:
-#             tracks.extend(results['track']['id'])
-#         except Exception as e:
-#             print(e)
-#             print('---------------------------------------------------------------------------------------')
-#             print(results)
-#             sys.exit()
-#     while results['next'] and len(results['items']) > 0:
-#         results = rate_limited_request(sp.next, results)
-#         tracks.extend(results['track']['id'])
-    
-#     return list(tracks)
-
 def get_playlist_tracks(playlist_id):
     tracks = []
     results = rate_limited_request(sp.playlist_tracks, playlist_id)
@@ -189,4 +148,3 @@ for PLAYLIST_ID in PLAYLIST_IDS:
 
 print('------------------------------------------------------------')
 print('ALL DONE!')
-
